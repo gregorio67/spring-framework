@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<configuration scan="true" scanPeriod="60 seconds" debug="true">
+
+	<property scope="context" name="LOG_DIR" value="/logs001/sehati/inf" />
+	<property name="APP_LOG" value="inf_app" />
+	<property name="ERR_LOG" value="inf_error" />
+	<property name="SQL_LOG" value="inf_sql" />
+	<property name="pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}.%M\(%line\) | %msg%n" />	
+	
+	<appender name="applog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/${APP_LOG}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--
+				daily rollover. Make sure the path matches the one in the file element or else
+				the rollover logs are placed in the working directory.
+			-->
+			<fileNamePattern>${LOG_DIR}/${APP_LOG}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<!-- keep 7 days' worth of history -->
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>UTF-8</charset>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}.%M\(%line\) | %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+	</appender>
+
+
+	<!-- 파일 예외(Exception) 발생 출력 Appender -->
+	<appender name="errorlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/${ERR_LOG}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--
+				daily rollover. Make sure the path matches the one in the file element or else
+				the rollover logs are placed in the working directory.
+			-->
+			<fileNamePattern>${LOG_DIR}/${ERR_LOG}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<!-- keep 7 days' worth of history -->
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>UTF-8</charset>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}.%M\(%line\) | %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+        </filter>
+	</appender>
+
+	<!-- 파일 예외(Exception) 발생 출력 Appender -->
+	<appender name="sqllog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/${SQL_LOG}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--
+				daily rollover. Make sure the path matches the one in the file element or else
+				the rollover logs are placed in the working directory.
+			-->
+			<fileNamePattern>${LOG_DIR}/${SQL_LOG}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>500MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<!-- keep 7 days' worth of history -->
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<charset>UTF-8</charset>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50}.%M\(%line\) | %msg%n</pattern>
+		</encoder>
+	</appender>
+    
+    <logger name="sehati.inf" additivity="false">
+        <level value="INFO" />
+		<appender-ref ref="applog" />
+		<appender-ref ref="errorlog" />
+    </logger>
+
+	<logger name="cmn.util" additivity="false">
+        <level value="INFO" />
+		<appender-ref ref="applog" />
+		<appender-ref ref="errorlog" />
+    </logger>
+    
+	<!-- 3rd Party -->
+	<!-- Spring Framework logging level -->
+	<logger name="org.springframework.transaction" additivity="false">
+        <level value="INFO" />
+		<appender-ref ref="applog" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<logger name="org.springframework" additivity="false">
+        <level value="INFO" />
+		<appender-ref ref="applog" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<!-- Apache Components logging level -->
+	<logger name="org.apache" additivity="false">
+        <level value="WARN" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<!-- Apache HttpComponents: 디버깅 -->
+	<logger name="org.apache.http.wire" additivity="false">
+        <level value="WARN" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<!-- Quartz scheduler logging level -->
+	<logger name="org.quartz" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<!-- MyBatis & SQL -->
+	<!-- SQL base level -->
+	<logger name="java.sql" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="errorlog" />
+	</logger>
+	<logger name="org.springframework.jdbc" additivity="false">
+        <level value="WARN" />
+		<appender-ref ref="errorlog" />
+    </logger>
+
+	<!-- MyBatis logging level -->
+	<logger name="org.mybatis" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<!--
+		JDBC SQL Query Print logging level
+	-->
+	<logger name="jdbc.connection" additivity="false"> 
+		<level value="OFF" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+    <logger name="jdbc.resultset" additivity="false"> 
+        <level value="OFF" />
+		<appender-ref ref="errorlog" />
+    </logger>
+
+	<logger name="jdbc.audit" additivity="false"> 
+		<level value="OFF" />
+		<appender-ref ref="errorlog" />
+	</logger>
+
+	<logger name="jdbc.sqltiming" additivity="false"> 
+        <level value="OFF" />
+		<appender-ref ref="errorlog" />
+    </logger>
+
+	<!-- want to log sql result, set level info  -->
+	<logger name="jdbc.resultsettable" additivity="false"> 
+		<level value="INFO" />
+		<appender-ref ref="sqllog" />
+
+	</logger>
+	<logger name="jdbc.sqlonly" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="sqllog" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="applog" />
+		<appender-ref ref="errorlog" />
+	</root>
+</configuration>
