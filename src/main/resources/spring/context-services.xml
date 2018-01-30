@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+
+	<!-- Web Service List -->
+	<util:map id="serviceRest" key-type="java.lang.String" map-class="java.util.HashMap">
+		<!-- mapping InterfaceId and service name-->
+		<entry key ="dscService" value="dscRestService" />
+	</util:map>
+
+
+	<util:map id="serviceWebService" key-type="java.lang.String" map-class="java.util.HashMap">
+		<!-- mapping serviceName and serviceName-->
+		<entry key="getCitiesByCountry" value="weatherCheckService" />
+		<entry key="getWeather" value="getWeatherService" />
+	</util:map>
+</beans>
