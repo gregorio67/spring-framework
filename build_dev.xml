@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="all" name="sehati-inf">
+	
+  	<property environment="dev"/>
+  	<property name="environment" value="dev"/>
+	<property name="pjt.name" value="sehati-inf" />
+	<property name="ci.ip" value="10.255.116.51" />
+	<property name="ci.port" value="22" />
+	<property name="war.filename" value="sehati-inf-0.0.1-SNAPSHOT.war" />
+	<property name="was.home" value="/engn001/apache-tomcat-7.0.76" />
+	<property name="keyfile.dir" value="/home/ci/.ssh/hira-dev.pem" />
+	<property name="was.ip" value="10.255.116.249" /> <!-- 배포 WAS 서버 IP -->
+	<property name="was.port" value="22" /> <!-- 배포 WAS 서버 Port -->
+	<property name="was.userid" value="ec2-user" /> <!-- 배포 WAS 서버 userid -->
+	<property name="was.passwd" value="tomcat" /> <!-- 배포 WAS 서버 password -->
+	<property name="ci.war.dir" value="/engn001/ciserv/hudson/jobs/SEHATI-INF-DEV/workspace/target" /> <!-- 보내고자 하는 war 위치 -->
+	<property name="ci.tmp.dir" value="/sorc001/temp" />
+	<property name="was.src.dir" value="/sorc001/sehati/inf" /> <!-- 배포 WAS 서버  war 위치 -->	
+	<property name="was.tmp.src.dir" value="/tmp/src" /> <!-- 배포 WAS 서버  war 위치 -->	
+	<property name="was.java.bin" value="/engn001/jdk1.7.0_80/bin" />
+	<property name="debuglevel" value="source,lines,vars"/>
+  	<property name="target" value="1.7"/>
+  	<property name="source" value="1.7"/>
+	
+	
+	<target name="all" depends="start-tomcat"/>
+	
+	<!-- =================================================================== -->
+	<!-- 1. STOP Tomcat for Interface;    -->
+	<!-- =================================================================== -->
+	<target name="stop-tomcat">
+			<sshexec  host="${was.ip}"
+				username="${was.userid}"
+				keyfile="${keyfile.dir}"
+				port="${was.port}"
+				command="sudo su -c ${was.home}/bin/shutdown.sh tomcat;
+						cd ${was.src.dir};
+						sudo rm -rf *"
+						trust="true"/>
+	</target>
+
+	<target name="copy-war" depends="stop-tomcat">
+	    <exec executable="scp" dir="." failonerror="true">
+		    <arg value="-i"/>
+	    	<arg value="${keyfile.dir}" />
+	    	<arg value="${ci.war.dir}/${war.filename}" />
+		    <arg value="${was.userid}@${was.ip}:${was.tmp.src.dir}"/>
+	    </exec>		
+		<!--exec command="sudo scp -i ${keyfile.dir} ${ci.war.dir}/${war.filename} ${was.userid}@${was.ip}:${was.src.dir}" /-->
+	</target>
+	
+	<sleep seconds="5"/>
+	<!-- =================================================================== -->
+	<!-- 2. Copy WAR from ci server to /sorc001/sehati/inf in interface server            -->
+	<!-- =================================================================== -->
+	<!--target name="copy-war" depends="stop-tomcat">
+			<sshexec  host="${ci.ip}"
+				username="${was.userid}"
+				keyfile="${keyfile.dir}"
+				port="${was.port}"
+				command="sudo scp -i ${keyfile.dir} ${ci.war.dir}/${war.filename} ${was.userid}@${was.ip}:${was.src.dir}"
+				trust="true"/>
+	</target-->
+	
+	
+	<!-- =================================================================== -->
+	<!-- 3. UNPACKAGING SOURCE : -->
+	<!-- =================================================================== -->
+	<target name="unzip-waspackage" depends="copy-war">
+			<sshexec  host="${was.ip}"
+				username="${was.userid}"
+				keyfile="${keyfile.dir}"
+				port="${was.port}"
+				command="sudo cp ${was.tmp.src.dir}/${war.filename} ${was.src.dir};
+						 cd ${was.src.dir};
+						 sudo unzip ${was.src.dir}/${war.filename};
+						 sudo rm -rf ${war.filename}"
+				trust="true"/>
+	</target>
+	
+
+	<!-- =================================================================== -->
+	<!-- 4. COPY Properties and Log4j.xml FILE : rm -rf WEB-INF/classes/svrcfg-->
+	<!-- =================================================================== -->
+	<echo message="copy properties" />
+	<target name="copy-properties" depends="unzip-waspackage">
+			<sshexec  host="${was.ip}"
+				username="${was.userid}"
+				keyfile="${keyfile.dir}"
+				port="${was.port}"
+				command="cd ${was.src.dir};
+						sudo cp ${was.src.dir}/WEB-INF/classes/svrcfg/dev/logback.xml ${was.src.dir}/WEB-INF/classes/logback.xml;
+						sudo cp ${was.src.dir}/WEB-INF/classes/svrcfg/dev/context-interface-rest.xml ${was.src.dir}/WEB-INF/classes/spring/context-interface-rest.xml;
+						sudo cp ${was.src.dir}/WEB-INF/classes/svrcfg/dev/context-interface-ws.xml.xml ${was.src.dir}/WEB-INF/classes/spring/context-interface-ws.xml;
+				 		sudo rm -rf WEB-INF/classes/svrcfg;
+						sudo chown -R tomcat:tomcat ${was.src.dir}"
+				
+				trust="true"/>
+	</target>
+
+	<echo message="Tomcat Start" />
+	<!-- =================================================================== -->
+	<!-- 5. Start Tomcat                                                     -->
+	<!-- =================================================================== -->
+	<target name="start-tomcat" depends="copy-properties">
+			<sshexec  host="${was.ip}"
+				username="${was.userid}"
+				keyfile="${keyfile.dir}"
+				port="${was.port}"
+				command="cd ${was.src.dir}
+						 sudo chown -R tomcat:tomcat *;
+						 sudo su -c ${was.home}/bin/startup.sh tomcat"
+				trust="true"/>
+	</target>		
+</project>
