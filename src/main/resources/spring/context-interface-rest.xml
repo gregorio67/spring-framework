@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+	<!-- Drug Safety Control Restful service List -->
+	<util:map id="dsc.dscService">
+		<entry key="host" value="http://10.255.114.91" />
+
+		<entry key="insertPrescriptionService" value="/api/dscService/insertPrescriptionService|POST" />
+
+		<entry key="updateCheckSaftyService" value="/api/dscService/updateCheckSaftyService|POST" />
+
+		<entry key="drugCheckSaftyService" value="/api/dscService/drugCheckSaftyService|POST" />
+	</util:map>
+</beans>
