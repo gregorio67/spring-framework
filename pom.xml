@@ -34,16 +34,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<repository>
-			<id>sehati_repo</id>
-			<url>http://10.255.116.51:6060/nexus/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 	</repositories>
 
   <dependencies>
