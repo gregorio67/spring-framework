@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource name="jdbc/sqlite3"
+			  auth="Container"
+			  type="javax.sql.DataSource"
+			  driverClassName="org.sqlite.JDBC"
+			  url="jdbc:sqlite:D:/sqlite3/XXX.db"
+			  username=""
+			  password=""
+			  maxActive="2"
+			  minIdle="2"
+			  maxIdle="2"
+			  maxWait="1000" />
+
+	<Resource name="nemr"
+			  auth="Container"
+			  type="javax.sql.DataSource"
+			  driverClassName="oracle.jdbc.OracleDriver"
+			  url="jdbc:oracle:thin:@xxxxx:1521:XXXX"
+			  username="xxxxr"
+			  password="xxxx"
+			  maxActive="2"
+			  minIdle="2"
+			  maxIdle="2"
+			  maxWait="1000" />
+</Context>
