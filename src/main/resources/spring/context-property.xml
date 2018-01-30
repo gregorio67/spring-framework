@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- value>classpath:properties/app.properties</value-->
+				<value>classpath:property/system.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+
+	<bean id="system" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:property/system.properties" />
+	</bean>
+	<!-- Set Properties Utility, When context is loading, all properties are also loaded -->
+	<bean id="propertiesUtil" class="cmn.util.spring.PropertiesUtil">
+		<property name="locations">
+			<list>
+				<!-- value>classpath:properties/app.properties</value-->
+				<value>classpath:property/system.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+
+	<!-- bean id="propertiesConfiguration" class="org.apache.commons.configuration.PropertiesConfiguration">
+		<constructor-arg name="fileName" value="classpath:property/system.properties" />
+		<property name="reloadingStrategy" ref="reloadingStrategy" />
+	</bean>
+
+	<bean id="reloadingStrategy" class="org.apache.commons.configuration.reloading.FileChangedReloadingStrategy">
+		<property name="refreshDelay" value="1000" />
+	</bean-->
+
+	<!-- bean id="reloadPropertyUtil" class="dymn.utils.ReloadPropertyUtil" /-->
+
+</beans>
