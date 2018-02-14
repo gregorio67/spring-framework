@@ -75,6 +75,6 @@
     <alias name="spring.RegularCommonsMultipartResolver" alias="multipartResolver" />
     
     <!-- Application Context to get spring bean -->
-    <bean id="applicationContextProvider" class="taxris.framework.util.ApplicationContextProvider"/>
+    <bean id="applicationContextProvider" class="framework.util.ApplicationContextProvider"/>
     
 </beans>
