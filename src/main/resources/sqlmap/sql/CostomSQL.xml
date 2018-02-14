@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CustomerMngtSql">
+
+	<resultMap id="customer" type="kics.main.sample.vo.CustomerMngtVo">
+		<result property="id" column="ID" />
+		<result property="name" column="NAME" typeHandler="kics.framework.mybatis.handler.KicsEncFullTypeHandler"/>
+		<result property="age" column="AGE" />
+		<result property="tel" column="TEL" />
+		<result property="bloodtype" column="BLOODTYPE" />
+		<result property="gender" column="GENDER"/>
+	</resultMap>
+	<resultMap id="result" type="hashmap">
+	</resultMap>
+
+	<!--
+	<select id="retrieveCommonCodeList" parameterType="java.util.Map" resultType="kics.main.common.vo.CodeVo">
+		SELECT CM_CD
+			 , CM_CD_NAME
+			 , CD_ABBR_NAME
+			 , CL_DV_CD
+			 , PRDN_CD
+			 , USE_YN
+			 , QEE_SQO
+			 , CM_TPS_CRRP_CD
+			 , CM_TPS_CRRP_CD_NAME
+			 , CM_TPS_CRRP_CD_USE_YN
+			 , CBMJ_CRRP_CD
+			 , CBMJ_CRRP_CD_NAME
+			 , CBMJ_USE_YN
+			 , NSO_CRRP_CD
+			 , NSO_CRRP_CD_NAME
+			 , NSO_USE_YN
+			 , PAST_DMG_RPTB_CRRP_CD
+			 , ANEW_DMG_RPTB_CRRP_CD
+			 , DMG_RPTB_CRRP_CD_NAME
+			 , DMG_NTY_CD_XPN_CTS
+			 , DMG_RPTB_USE_YN
+			 , RMKS_CTS
+			 , UPDPN_ID
+			 , UPD_TS
+		  FROM TB_AAZ102
+		 WHERE CL_DV_CD = '063'
+		   AND PRDN_CD = '02638'
+		   AND USE_YN = 'Y'
+	</select>
+	-->
+	
+	<select id="retrieveBloodtypeList" parameterType="java.util.Map" resultMap="customer">
+		SELECT 'A' AS CM_CD, 'A형' as CM_CD_NAME FROM DUAL
+		UNION ALL
+		SELECT 'B' AS CM_CD, 'B형' as CM_CD_NAME FROM DUAL
+		UNION ALL
+		SELECT 'O' AS CM_CD, 'O형' as CM_CD_NAME FROM DUAL
+		UNION ALL
+		SELECT 'AB' AS CM_CD, 'AB형' as CM_CD_NAME FROM DUAL
+	</select>
+	
+	<select id="retrieveGenderList" parameterType="java.util.Map" resultMap="customer">
+		SELECT 'M' AS CM_CD, '남자' as CM_CD_NAME FROM DUAL
+		UNION ALL
+		SELECT 'F' AS CM_CD, '여자' as CM_CD_NAME FROM DUAL
+	</select>
+	
+	<!-- select id="retrieveCustomerList" parameterType="java.util.Map" resultType="kics.main.sample.vo.CustomerMngtVo"-->		
+	<select id="retrieveCustomerList" parameterType="java.util.Map" resultMap="customer">		
+		SELECT baseTable.ID
+			 , baseTable.NAME
+			 , baseTable.AGE
+			 , baseTable.TEL
+			 , baseTable.BLOODTYPE
+			 , baseTable.GENDER
+			 , baseTable.rNum
+		  FROM(		 
+				SELECT ID
+					 , NAME
+					 , AGE
+					 , TEL
+					 , BLOODTYPE
+					 , GENDER
+					 , rownum AS rNum
+				 FROM CUSTOMER
+				WHERE 1=1		  
+				<if test = "id != null and id != ''">
+					AND ID = #{id}
+				</if>
+				<if test = "name != null and name != ''">
+					AND NAME LIKE '%' || #{name} || '%'
+				</if>
+				<if test = "age != null and age != ''">
+					AND AGE = #{age}
+				</if>
+				<if test = "tel != null and tel != ''">
+					AND TEL = #{tel}
+				</if>
+				<if test = "bloodtype != null and bloodtype != ''">
+					AND BLOODTYPE = #{bloodtype}
+				</if>
+				<if test = "gender != null and gender != ''">
+					AND GENDER = #{gender}
+				</if>
+				ORDER BY ID ASC
+				) baseTable
+	<![CDATA[ 
+		WHERE baseTable.rNum BETWEEN #{startNum} AND #{endNum}
+	]]>
+	</select>
+	
+	<select id="retrieveCustomerDtl" parameterType="java.util.Map" resultMap="customer">		
+		SELECT ID
+			 , NAME
+			 , AGE
+			 , TEL
+			 , BLOODTYPE
+			 , GENDER
+			 , rownum AS rNum
+		 FROM CUSTOMER
+		WHERE ID = #{id}				
+		<if test = "name != null and name != ''">
+			AND NAME LIKE '%' || #{name} || '%'
+		</if>
+		<if test = "age != null and age != ''">
+			AND AGE = #{age}
+		</if>
+		<if test = "tel != null and tel != ''">
+			AND TEL = #{tel}
+		</if>
+		<if test = "bloodtype != null and bloodtype != ''">
+			AND BLOODTYPE = #{bloodtype}
+		</if>
+		<if test = "gender != null and gender != ''">
+			AND GENDER = #{gender}
+		</if>
+	</select>
+
+	<insert id="insertCustomer" parameterType="java.util.Map">
+		INSERT INTO CUSTOMER (
+								ID
+							  , NAME
+							  , AGE
+							  , TEL
+							  , BLOODTYPE
+							  , GENDER
+		  					 ) VALUES ( 
+								<!-- (SELECT TO_CHAR(TO_NUMBER(MAX(ID))+1) FROM CUSTOMER)-->
+							   #{id}
+							  , #{name, typeHandler=kics.framework.mybatis.handler.KicsEncFullTypeHandler}
+							  , #{age}
+							  , #{tel}
+							  , #{bloodtype}
+							  , #{gender}
+							 )
+	</insert>
+	
+	<update id="updateCustomer" parameterType="java.util.Map">
+		UPDATE CUSTOMER
+		   SET ID	  = #{id}
+	  	  , NAME	  = #{name, typeHandler=kics.framework.mybatis.handler.KicsEncFullTypeHandler}
+	  	  , AGE		  = #{age}
+	  	  , TEL		  = #{tel}
+	  	  , BLOODTYPE = #{bloodtype}
+	  	  , GENDER    = #{gender}
+		 WHERE ID = #{id}
+	</update>
+	
+	<delete id="deleteCustomer" parameterType="java.util.Map">
+		DELETE 
+		  FROM CUSTOMER 
+		 WHERE ID = #{id}
+		<if test = "name != null and name != ''">
+			AND NAME=#{name}
+		</if>
+		<if test = "age != null and age != ''">
+			AND AGE=#{age}
+		</if>
+		<if test = "tel != null and tel != ''">
+			AND TEL=#{tel}
+		</if>
+		<if test = "bloodtype != null and bloodtype != ''">
+			AND BLOODTYPE=#{bloodtype}
+		</if>
+		<if test = "gender != null and gender != ''">
+			AND GENDER=#{gender}
+		</if>
+	</delete>
+	
+	<select id="retrieveCustomerListTotCnt" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*) AS totalCount
+		  FROM CUSTOMER
+		 WHERE 1=1
+		<if test = "id != null and id != ''">
+			AND ID = #{id}
+		</if>
+		<if test = "name != null and name != ''">
+			AND NAME LIKE '%' || #{name} || '%'
+		</if>
+		<if test = "age != null and age != ''">
+			AND AGE = #{age}
+		</if>
+		<if test = "tel != null and tel != ''">
+			AND TEL = #{tel}
+		</if>
+		<if test = "bloodtype != null and bloodtype != ''">
+			AND BLOODTYPE = #{bloodtype}
+		</if>
+		<if test = "gender != null and gender != ''">
+			AND GENDER = #{gender}
+		</if>
+	</select>
+
+	<select id="callProcedure" parameterType="java.util.Map" resultMap="customer" statementType="CALLABLE">
+		CALL SP_GET_CUSTOMER_2(
+			#{id, mode=IN, javaType=String, jdbcType=CHAR},
+			#{name, mode=OUT, jdbcType=CHAR},
+			#{age, mode=OUT, jdbcType=DOUBLE},
+			#{tel, mode=OUT, jdbcType=CHAR},
+			#{bloodtype, mode=OUT, jdbcType=CHAR},
+			#{gender, mode=OUT, jdbcType=CHAR}
+		) 
+		
+	</select>
+	
+		<select id="callProcedureCursor" parameterType="java.util.Map" resultType="kics.main.sample.vo.CustomerMngtVo" statementType="CALLABLE">
+		
+		CALL SP_GET_CUSTOMER(
+			#{id, mode=IN, javaType=String, jdbcType=CHAR},
+			#{result, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=result}
+		)
+		
+	</select>
+	
+</mapper>
