@@ -1,0 +1,21 @@
+<script type="text/javascript">
+	var _InfoTitle="<spring:message code='message.info.title' />";
+	var _ExceptionTitle="<spring:message code='message.exception.title' />";
+	var _Yes="<spring:message code='button.Yes' />";
+	var _No="<spring:message code='button.No' />";
+	var _Cancel="<spring:message code='button.Cancel' />";
+	var _Close="<spring:message code='button.Close' />";
+	var _ServerName = null;
+	var _Total="<spring:message code='label.total' />";
+</script>
+
+<div style="display:none" id="errorMessageDialog"></div>
+<div style="display:none" id="successDialog"></div>
+<div style="display:none" id="dialog-message"></div>
+
+<!-- div id="serverInfo">
+	<% String serverName = System.getProperty("was.name");
+	   serverName = "<!-- Run Server information : [" + serverName + "] ---->";
+	%>
+	<input type="hidden"  value="<%=serverName %>"> 
+</div-->
