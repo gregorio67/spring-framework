@@ -103,4 +103,98 @@
 		WHERE TRAN_SEQ = #{tranSeq}
 	</update>
 	
+	<select id="selMonthlyChart" parameterType="java.util.Map" resultType="cmn.util.dao.CamelMap">
+		SELECT *
+		FROM (
+		     SELECT TO_CHAR(START_TIME, 'YYYY-MM') START_DAY
+		          ,INTERFACE_ID
+		     FROM TRANS_LOG
+		     WHERE 1 = 1
+			<if test='startDate != "" and startDate != null'>
+		     <![CDATA[AND START_TIME >=  #{startDate}]]>
+		    </if>
+			<if test='interfaceId != "" and interfaceId != null'>
+			AND   INTERFACE_ID LIKE '%' || #{interfaceId} || '%'
+			</if>
+		)
+		PIVOT 
+		(
+			COUNT(START_DAY)
+		    FOR START_DAY IN
+		    <foreach collection="condDate" item="item"  open="(" close=")" separator=",">
+            ${item}
+	        </foreach>
+		)	
+	</select>
+	<!-- 
+	<select id="selDailyChart" parameterType="java.util.Map" resultType="cmn.util.dao.CamelMap">
+		SELECT TO_CHAR(START_TIME, 'YYYY-MM-DD') START_DATE
+		      ,INTERFACE_ID
+		      ,COUNT(*) CNT
+		FROM   TRANS_LOG
+		WHERE 1 = 1
+		<if test='startDate != "" and startDate != null'>
+		<![CDATA[AND   START_TIME >= #{startDate}]]>
+		</if>
+		<if test='interfaceId != "" and interfaceId != null'>
+		AND   INTERFACE_ID LIKE '%' || #{interfaceId} || '%'
+		</if>
+		GROUP BY TO_CHAR(START_TIME, 'YYYY-MM-DD'), INTERFACE_ID	
+	</select>
+	 -->
+	<select id="selDailyChart" parameterType="java.util.Map" resultType="cmn.util.dao.CamelMap">
+		SELECT *
+		FROM (
+		     SELECT TO_CHAR(START_TIME, 'YYYY-MM-DD') START_DAY
+		          ,INTERFACE_ID
+		     FROM TRANS_LOG
+		     WHERE 1 = 1
+			<if test='startDate != "" and startDate != null'>
+		     <![CDATA[AND START_TIME >=  #{startDate}]]>
+		    </if>
+			<if test='interfaceId != "" and interfaceId != null'>
+			AND   INTERFACE_ID LIKE '%' || #{interfaceId} || '%'
+			</if>
+		)
+		PIVOT 
+		(
+			COUNT(START_DAY)
+		    FOR START_DAY IN
+		    <foreach collection="condDate" item="item"  open="(" close=")" separator=",">
+            ${item}
+	        </foreach>
+		)	
+	
+	</select>
+	<select id="selStartDays" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT q'[']' || START_DATE || q'[']' START_DATE
+		FROM   
+		   (SELECT DISTINCT(TO_CHAR(START_TIME, 'YYYY-MM-DD')) START_DATE FROM TRANS_LOG
+			WHERE 1 = 1
+			<if test='startDate != "" and startDate != null'>
+			<![CDATA[AND   START_TIME >= #{startDate}]]>
+			</if>
+			<if test='interfaceId != "" and interfaceId != null'>
+			AND   INTERFACE_ID LIKE '%' || #{interfaceId} || '%'
+			</if>
+			ORDER BY 1
+			)
+	</select>
+	
+	<select id="selStartMonths" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT q'[']' || START_DATE || q'[']' START_DATE
+		FROM   
+		   (SELECT DISTINCT(TO_CHAR(START_TIME, 'YYYY-MM')) START_DATE FROM TRANS_LOG
+			WHERE 1 = 1
+			<if test='startDate != "" and startDate != null'>
+			<![CDATA[AND   START_TIME >= #{startDate}]]>
+			</if>
+			<if test='interfaceId != "" and interfaceId != null'>
+			AND   INTERFACE_ID LIKE '%' || #{interfaceId} || '%'
+			</if>
+			ORDER BY 1
+			)
+
+	</select>
+	
 </mapper>
