@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--=========================================================================-->
+<!-- NAME : MenuSQL.xml                                                      -->
+<!-- DESC : Set of SQL statements to manipulate menu table                   -->
+<!--=========================================================================-->
+<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+<!-- ==========  ============  ==============================================-->
+<!-- 2017.06.13  BUM JOON LEE    Initial Creation                              -->
+<!--=========================================================================-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ap.Menu">
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPTopMenuList                                                  -->
+	<!-- DESC : Retrieve topMenuList                               -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.06.13  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPTopMenuList" parameterType="java.util.HashMap" resultType="egovMap">
+		SELECT /* selAPTopMenuList */ 
+		       DISTINCT A.MENU_CD
+		<choose>
+	   		<when test='locale == "en"'>
+	     	  ,A.ENG_MENU_CD_NM 	AS MENU_CD_NM
+		 	</when>
+		 	<otherwise>
+		 	  ,A.MENU_CD_NM 	AS MENU_CD_NM
+			</otherwise>
+		</choose>
+		      ,A.SRC_PATH
+		      ,A.DISP_ODR
+		FROM   AP_MENU A
+		      ,AP_AUTHORITY_MENU B
+		      ,AP_AUTHORITY_USER C
+		WHERE  A.MENU_CD = B.MENU_CD
+		AND    B.AUTH_CD = C.AUTH_CD
+		AND    C.USER_ID = #{userId, jdbcType=VARCHAR}
+		AND    A.UPPER_MENU_CD = '00000000'
+		ORDER BY A.DISP_ODR
+	</select>
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPLeftMenuList                                                  -->
+	<!-- DESC : Retrieve leftMenuList                                 -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.06.13  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPLeftMenuList" parameterType="java.util.HashMap" resultType="egovMap">
+		SELECT /* selAPLeftMenuList */ 
+		       Z.MENU_CD
+		      ,Z.UPPER_MENU_CD
+		      ,Z.UPPER_MENU_CD_NM
+		      ,Z.MENU_CD_NM
+		      ,Z.SRC_PATH
+		      ,Z.DISP_ODR
+		      ,LEVEL AS LV
+		      ,SUBSTR(SYS_CONNECT_BY_PATH(MENU_CD_NM, ' > '),4) AS MENU_FULL_PATH
+		FROM  (SELECT DISTINCT A.MENU_CD
+		             ,A.UPPER_MENU_CD
+		             ,(SELECT <choose>
+							   		<when test='locale == "en"'>
+							  X.ENG_MENU_CD_NM 	AS MENU_CD_NM
+								 	</when>
+								 	<otherwise>
+							  X.MENU_CD_NM 	AS MENU_CD_NM
+									</otherwise>
+								</choose>
+		               FROM   AP_MENU X 
+		               WHERE  X.MENU_CD = A.UPPER_MENU_CD) AS UPPER_MENU_CD_NM
+				<choose>
+			   		<when test='locale == "en"'>
+			     	  ,A.ENG_MENU_CD_NM 	AS MENU_CD_NM
+				 	</when>
+				 	<otherwise>
+				 	  ,A.MENU_CD_NM 	AS MENU_CD_NM
+					</otherwise>
+				</choose>
+		              ,A.SRC_PATH
+		              ,A.DISP_ODR
+		        FROM   AP_MENU A
+		              ,AP_AUTHORITY_MENU B
+		              ,AP_AUTHORITY_USER C
+		        WHERE  A.MENU_CD = B.MENU_CD
+		        AND    B.AUTH_CD = C.AUTH_CD
+		        AND    C.USER_ID = #{userId, jdbcType=VARCHAR}
+		       ) Z
+		START WITH Z.UPPER_MENU_CD = #{upperMenuCd, jdbcType=VARCHAR}
+		CONNECT BY PRIOR Z.MENU_CD = Z.UPPER_MENU_CD
+		ORDER SIBLINGS BY Z.DISP_ODR
+	</select>
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPBookMarkList                                                  -->
+	<!-- DESC : Retrieve BookMarkList                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.06.15  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPBookMarkList" parameterType="java.util.HashMap" resultType="egovMap">
+		SELECT /* selAPBookMarkList */ 
+		       B.MENU_CD
+		<choose>
+	   		<when test='locale == "en"'>			   		            
+	     	  ,B.ENG_MENU_CD_NM 	AS MENU_CD_NM
+		 	</when>
+		 	<otherwise>
+		 	  ,B.MENU_CD_NM 	AS MENU_CD_NM
+			</otherwise>
+		</choose>
+		      ,B.SRC_PATH
+		      ,'1' AS LV
+		FROM   AP_USER_MENU A
+		      ,AP_MENU B
+		WHERE  A.MENU_CD = B.MENU_CD
+		AND    A.USER_ID = #{userId, jdbcType=VARCHAR}
+		AND    B.USE_YN = 'Y'
+		ORDER BY A.UP_DT DESC
+	</select>
+	
+	<!--=========================================================================-->
+	<!-- NAME : insAPBookMark                                                  -->
+	<!-- DESC : insert BookMark                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.06.15  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<insert id="insAPBookMark" parameterType="java.util.HashMap">
+		INSERT /* insAPBookMark */ INTO AP_USER_MENU
+			(
+			USER_ID
+			,MENU_CD
+			,IN_DT
+			,IN_ID
+			,UP_DT
+			,UP_ID
+			)
+		VALUES
+			(
+			#{userId, jdbcType=VARCHAR}
+			,#{menuCd, jdbcType=VARCHAR}
+			,SYSDATE
+			,#{inId, jdbcType=VARCHAR}
+			,SYSDATE
+			,#{upId, jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<!--=========================================================================-->
+	<!-- NAME : delAPBookMark                                                  -->
+	<!-- DESC : delete BookMark                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.06.15  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<delete id="delAPBookMark" parameterType="java.util.HashMap">
+		DELETE /* delAPBookMark */ 
+		FROM   AP_USER_MENU
+		WHERE  1 = 1
+	    <if test = 'menuCd != null and menuCd != ""'>
+	    AND    MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	    </if>
+	    <if test = 'userId != null and userId != ""'>
+	    AND    USER_ID = #{userId, jdbcType=VARCHAR}
+	    </if>
+	</delete>
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPMenuList                                                  -->
+	<!-- DESC : Retrieve menu List                                  -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.05  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPMenuList" parameterType="java.util.HashMap" resultType="egovMap">
+		SELECT /* selAPMenuList */ 
+		       A.MENU_CD
+	          ,A.MENU_CD_NM
+	          ,A.ENG_MENU_CD_NM
+	          ,A.UPPER_MENU_CD
+	          ,(SELECT <choose>
+					   		<when test='locale == "en"'>
+					   X.ENG_MENU_CD_NM 	AS MENU_CD_NM
+						 	</when>
+						 	<otherwise>
+					   X.MENU_CD_NM 	AS MENU_CD_NM
+							</otherwise>
+						</choose>
+	            FROM   AP_MENU X 
+	            WHERE  X.MENU_CD = A.UPPER_MENU_CD) AS UPPER_MENU_CD_NM
+	          ,A.SRC_PATH
+	          ,A.MENU_LVL
+	          ,A.DISP_ODR
+	          ,A.USE_YN
+	          ,A.RMK
+	          ,LEVEL LV
+	    FROM   AP_MENU A
+	    START WITH A.MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	    CONNECT BY PRIOR A.MENU_CD = A.UPPER_MENU_CD
+	    ORDER SIBLINGS BY A.DISP_ODR
+	</select>
+	
+	<!--=========================================================================-->
+	<!-- NAME : insAPMenu                                                  -->
+	<!-- DESC : insert menu                                   -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.05  BUM JOON LEE    Initial Creation                             -->
+	<!--=========================================================================-->
+	<insert id="insAPMenu" parameterType="java.util.HashMap">
+		INSERT /* insAPMenu */ INTO AP_MENU
+			(
+			MENU_CD
+			,UPPER_MENU_CD
+			,MENU_CD_NM
+			,ENG_MENU_CD_NM
+			,SRC_PATH
+			,MENU_LVL
+			,DISP_ODR
+			,USE_YN
+			,RMK
+			,IN_DT
+			,IN_ID
+			,UP_DT
+			,UP_ID
+			)
+		VALUES
+			(
+			#{menuCd, jdbcType=VARCHAR}
+			,#{upperMenuCd, jdbcType=VARCHAR}
+			,#{menuCdNm, jdbcType=VARCHAR}
+			,#{engMenuCdNm, jdbcType=VARCHAR}
+			,#{srcPath, jdbcType=VARCHAR}
+			,#{menuLvl, jdbcType=INTEGER}
+			,#{dispOdr, jdbcType=INTEGER}
+			,#{useYn, jdbcType=CHAR}
+			,#{rmk, jdbcType=VARCHAR}
+			,SYSDATE
+			,#{inId, jdbcType=VARCHAR}
+			,SYSDATE
+			,#{upId, jdbcType=VARCHAR}
+			)
+	</insert>
+	
+	<!--=========================================================================-->
+	<!-- NAME : updAPMenu                                                  -->
+	<!-- DESC : update menu                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.05  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<delete id="updAPMenu" parameterType="java.util.HashMap">
+		UPDATE /* updAPMenu */ AP_MENU
+		SET    MENU_CD_NM = #{menuCdNm, jdbcType=VARCHAR}
+		      ,ENG_MENU_CD_NM = #{engMenuCdNm, jdbcType=VARCHAR}
+		      ,SRC_PATH = #{srcPath, jdbcType=VARCHAR}
+		      ,MENU_LVL = #{menuLvl, jdbcType=INTEGER}
+		      ,DISP_ODR = #{dispOdr, jdbcType=INTEGER}
+		      ,USE_YN = #{useYn, jdbcType=CHAR}
+		      ,RMK = #{rmk, jdbcType=VARCHAR}
+		      ,UP_DT = SYSDATE
+		      ,UP_ID = #{upId, jdbcType=VARCHAR}
+		WHERE  MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	</delete>
+	
+	<!--=========================================================================-->
+	<!-- NAME : delAPMenu                                                  -->
+	<!-- DESC : delete menu                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.05  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<delete id="delAPMenu" parameterType="java.util.HashMap">
+		DELETE /* delAPMenu */ 
+		FROM   AP_MENU
+		WHERE  MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	</delete>
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPUpperMenuListCombo                                                  -->
+	<!-- DESC : Retrieve upperMenuListCombo                               -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.05  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPUpperMenuListCombo" parameterType="java.util.HashMap" resultType="egovMap">
+		SELECT /* selAPUpperMenuListCombo */ 
+		       MENU_CD
+		<choose>
+	   		<when test='locale == "en"'>
+	     	  ,ENG_MENU_CD_NM 	AS MENU_CD_NM
+		 	</when>
+		 	<otherwise>
+		 	  ,MENU_CD_NM 	AS MENU_CD_NM
+			</otherwise>
+		</choose>
+	    FROM   AP_MENU
+	    WHERE  UPPER_MENU_CD = (SELECT MENU_CD
+	                            FROM   AP_MENU
+	                            WHERE  UPPER_MENU_CD IS NULL
+	                            )
+		ORDER BY DISP_ODR
+	</select>
+	
+	<!--=========================================================================-->
+	<!-- NAME : selAPDuplicationMenuCode                                                  -->
+	<!-- DESC : Retrieve duplication of Menu code                                -->
+	<!--=========================================================================-->
+	<!--    DATE        AUTHOR                      DESCRIPTION                  -->
+	<!-- ==========  ============  ==============================================-->
+	<!-- 2017.07.21  BUM JOON LEE    Initial Creation                              -->
+	<!--=========================================================================-->
+	<select id="selAPDuplicationMenuCode" parameterType="java.util.HashMap" resultType="int">
+		SELECT /* selAPDuplicationMenuCode */ 
+		       COUNT(*)
+		FROM   AP_MENU
+		WHERE  MENU_CD = #{menuCd, jdbcType=VARCHAR}
+	</select>
+
+</mapper>
