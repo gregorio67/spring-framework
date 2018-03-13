@@ -8,7 +8,7 @@
                 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
 	<!-- mvc:annotation-driven /--> 
-    <context:component-scan base-package="stis.sb, stis.framework">
+    <context:component-scan base-package="xxxx.sb, xxxx.framework">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
         <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
@@ -21,7 +21,7 @@
 
 	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="webBindingInitializer">
-            <bean class="stis.framework.spring.webbinder.BaseBindingInitializer"/>
+            <bean class="xxxx.framework.spring.webbinder.BaseBindingInitializer"/>
         </property>
  		<property name="messageConverters">
  			<list>
@@ -31,7 +31,7 @@
  		</property> 
         <property name="customArgumentResolvers">
 			<list>
-				<bean class="stis.framework.nexacro.support.CustomRiaArgumentResolver">
+				<bean class="xxxx.framework.nexacro.support.CustomRiaArgumentResolver">
 					<property name="uiAdaptor">
 						<ref bean="nexacroMapAdaptor" />
 					</property>
@@ -54,16 +54,16 @@
 		<property name="supportedMediaTypes" value="application/xml" />
 	</bean>
 
-	<bean id="jaxbMarshaller" class="stis.framework.spring.xml.ClasspathScanningJaxb2Marshaller">
+	<bean id="jaxbMarshaller" class="xxxx.framework.spring.xml.ClasspathScanningJaxb2Marshaller">
 	    <property name="basePackages">
 		    <list>
-			    <value>stis.sb.sample</value>
+			    <value>xxxx.sb.sample</value>
 		    </list>
 		</property>
 		<!-- property name="classesToBeBound">
 			<list>
-				<value>stis.sb.sample.vo.ApiUserVo</value>
-				<value>stis.sb.sample.vo.ApiUserListVo</value>
+				<value>xxxx.sb.sample.vo.ApiUserVo</value>
+				<value>xxxx.sb.sample.vo.ApiUserListVo</value>
 			</list>
 		</property-->
 	</bean>	
@@ -72,18 +72,18 @@
 	    <!-- property name="packagesToScan"-->
 	    	<!-- set package name without * -->
 		    <!-- list>
-			    <value>stis.sb.sample.vo</value>
+			    <value>xxxx.sb.sample.vo</value>
 		    </list>
 		</property>
 	</bean-->	
 	<!-- 넥사크로 어답터를 통해 XML정보를 MAP형식으로 변환하도록 처리합니다. -->
     <!-- bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
         <property name="webBindingInitializer">
-            <bean class="stis.framework.spring.webbinder.BaseBindingInitializer"/>
+            <bean class="xxxx.framework.spring.webbinder.BaseBindingInitializer"/>
         </property>
         <property name="customArgumentResolvers">
 			<list>
-				<bean class="stis.framework.nexacro.support.CustomRiaArgumentResolver">
+				<bean class="xxxx.framework.nexacro.support.CustomRiaArgumentResolver">
 					<property name="uiAdaptor">
 						<ref bean="nexacroMapAdaptor" />
 					</property>
@@ -97,17 +97,17 @@
    		<!-- mvc:interceptors>
 			<mvc:interceptor>
 				<mvc:mapping path="/**"/>
-					<bean id="riaHandler" class="stis.framework.nexacro.support.RiaInterceptor">
+					<bean id="riaHandler" class="xxxx.framework.nexacro.support.RiaInterceptor">
 						<property name="uiDTO">
 							<list>
-								<bean class="stis.framework.nexacro.map.NexacroMapDTO" />
+								<bean class="xxxx.framework.nexacro.map.NexacroMapDTO" />
 							</list>
 						</property>
 					</bean>
 			</mvc:interceptor>
 		</mvc:interceptors-->		
 	
-	<bean name="nexacroMapAdaptor" class="stis.framework.nexacro.map.NexacroAdaptorImp">
+	<bean name="nexacroMapAdaptor" class="xxxx.framework.nexacro.map.NexacroAdaptorImp">
 		<!-- Cross site scripting Check -->
 		<property name="xssBeanName" value="xssUtil" />
 	</bean>
@@ -135,7 +135,7 @@
 	</bean>
 		
 	<!-- Exception Resolver -->
-	<bean id="exceptionResolver" class="stis.framework.exception.NexacroExceptionResolver">
+	<bean id="exceptionResolver" class="xxxx.framework.exception.NexacroExceptionResolver">
 		<property name="logSize" value="1000" />
 	</bean>
 
@@ -172,9 +172,9 @@
     </bean>
 		
 		<!-- Session Value Object -->
-	<bean id="sessionVo" class="stis.framework.vo.SBSessionVo" />
+	<bean id="sessionVo" class="xxxx.framework.vo.SBSessionVo" />
 	
-	<bean id="sessionInteceptor" class="stis.framework.spring.interceptor.SessionInterceptor">
+	<bean id="sessionInteceptor" class="xxxx.framework.spring.interceptor.SessionInterceptor">
 		<property name="skipUris">
 			<list>
 				<value>/sample/*</value>
